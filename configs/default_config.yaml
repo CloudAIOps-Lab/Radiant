@@ -1,0 +1,36 @@
+# Radiant: Default Configuration
+# Model and training hyperparameters
+
+# Telemetry Dimensions
+metric_dim: 7         # Number of metric features per service (e.g., CPU, Memory, Network)
+log_dim: 6            # Number of parsed log event features per service
+trace_dim: 2          # Dimensionality of pairwise trace edge features (e.g., latency, error rate)
+num_hosts: 12         # Number of monitored microservices (e.g., 12 in Eadro-SN)
+
+# Multimodal Architecture
+embed_dim: 64         # Latent projection dimension for individual telemetry streams
+gpt2_dim: 768         # Unified multimodal representation and backbone dimension
+gpt2_layers: 3        # Truncated frozen GPT-2 backbone layer count
+freeze_gpt2: true     # Keep backbone weights frozen
+
+# Dynamic Capacity Allocation (MoE-LoRA)
+moe_rank: 4                          # LoRA adapter intrinsic rank (r = 4)
+moe_alpha: 8.0                       # LoRA scaling factor
+moe_dropout: 0.05                    # Adapter dropout probability
+moe_num_experts: 4                   # Total available specialized LoRA experts
+routing_uncertainty_threshold: 0.40  # Routing uncertainty threshold tau_k (tau_c = 0.60)
+service_prior_strength: 0.60         # Topological prior guidance weight lambda (0.60 on Eadro-SN)
+service_prior_mode: "cyclic"         # Structural prior mode ("cyclic" or custom adjacency)
+
+# Deviation Space Diagnosis & Objective Weights
+cls_hidden_dim: 128                  # Intermediate dimension of supervised deviation encoder
+pred_weight: 0.1                     # Weight for next-step behavioral prediction loss
+moe_balance_weight: 0.05             # Weight for MoE router load-balancing regularization
+
+# Guarded Temporal Decision Rule (Streaming Inference Post-Processing)
+temporal_confirmation:
+  window_size: 3                     # Confirmation sliding buffer size C = 3
+  min_confirmations: 2               # Minimum positive alarms required M = 2
+  base_threshold: 0.309              # Detection threshold theta
+  bypass_threshold: 0.4625           # High-confidence bypass threshold theta_h
+  stride_seconds: 5.0                # Streaming evaluation stride
